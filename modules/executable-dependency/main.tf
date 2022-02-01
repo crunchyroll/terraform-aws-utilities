@@ -18,6 +18,7 @@ data "external" "executable" {
       var.download_url
     ],
     var.install_dir != null ? ["--install-dir", var.install_dir] : [],
+    var.file_extension != null ? ["--file-extension", var.file_extension] : [],
     var.append_os_arch ? ["--append-os-arch"] : []
   )
 }

@@ -41,7 +41,10 @@ def main():
     parser.add_argument('--executable', help='The executable', required=True)
     parser.add_argument('--download-url', help='The URL to download the executable from', required=True)
     parser.add_argument('--install-dir', help='Download the executable into this folder')
-    parser.add_argument('--append-os-arch', help='Append the OS and architecture to the download URL (e.g., linux_amd_64)', action='store_true')
+    parser.add_argument(
+        '--append-os-arch', help='Append the OS and architecture to the download URL (e.g., linux_amd_64)', action='store_true')
+    parser.add_argument(
+        '--file-extension', help='Append the provided file extension to the download URL (e.g., .tar.gz)', default=None)
 
     args = parser.parse_args()
 
@@ -58,7 +61,8 @@ def main():
 
     # If it's not there either, download the executable to the install dir
     if not executable_path:
-        executable_path = download_executable(args.executable, args.download_url, args.install_dir, args.append_os_arch)
+        executable_path = download_executable(args.executable, args.download_url,
+                                              args.install_dir, args.append_os_arch, args.file_extension)
 
     # Print the executable path to stdout as JSON so the Terraform external data source can read it in
     result = {'path': executable_path}
@@ -73,10 +77,13 @@ def default_install_dir(download_url):
     return os.path.join(tempfile.gettempdir(), DEFAULT_INSTALL_DIR_NAME, url_hash)
 
 
-def download_executable(executable, download_url, install_dir, append_os_arch):
+def download_executable(executable, download_url, install_dir, append_os_arch, file_extension):
     if append_os_arch:
         # Use the old string formatting style so that it works with Python 2
         download_url = '{}_{}_{}'.format(download_url, get_os(), get_arch())
+
+    if file_extension:
+        download_url += file_extension
 
     executable_path = os.path.join(install_dir, executable)
 
